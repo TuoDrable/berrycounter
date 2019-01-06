@@ -133,7 +133,6 @@ if __name__=="__main__":
         day_has_passed(time_prev)
     else:
         import RPi.GPIO as GPIO
-        GPIO.cleanup()
         GPIO.setmode(GPIO.BCM)
 
         # GPIO 23 & 17 & 24 set up as inputs, pulled up to avoid false detection.
@@ -146,28 +145,33 @@ if __name__=="__main__":
         GPIO.add_event_detect(23, GPIO.FALLING, callback=gas_pulse_seen, bouncetime=50)
         GPIO.add_event_detect(24, GPIO.FALLING, callback=drinkwater_pulse_seen, bouncetime=50)
 
-    while True:
-        time.sleep(1)
-        now = time.localtime()
+    try:
+        while True:
+            time.sleep(1)
+            now = time.localtime()
 
-        if now.tm_hour != time_prev.tm_hour:
-            hour_has_passed(time_prev)
+            if now.tm_hour != time_prev.tm_hour:
+                hour_has_passed(time_prev)
 
-        if now.tm_mday != time_prev.tm_mday:
-            day_has_passed(time_prev)
-            sync_with_dropbox()
+            if now.tm_mday != time_prev.tm_mday:
+                day_has_passed(time_prev)
+                sync_with_dropbox()
 
-        time_prev = now
+            time_prev = now
 
+            if DEMO:
+                # create random pulses
+                r = random.randrange(0, 10)
+                if r < 3:
+                    regenwater_pulse_seen()
+
+                if r >= 3 and r < 6:
+                    gas_pulse_seen()
+
+                if r >= 6:
+                    drinkwater_pulse_seen()
+    except:
         if DEMO:
-            # create random pulses
-            r = random.randrange(0, 10)
-            if r < 3:
-                regenwater_pulse_seen()
-
-            if r >= 3 and r < 6:
-                gas_pulse_seen()
-
-            if r >= 6:
-                drinkwater_pulse_seen()
+            GPIO.cleanup()
+        raise
 
