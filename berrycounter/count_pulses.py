@@ -4,6 +4,7 @@ import time
 import random
 import subprocess
 
+
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "berrycounter.settings")
 django.setup()
 
@@ -12,7 +13,10 @@ from counter.models import Counter
 
 DIRECTORY = './'
 
-DEMO=True
+DEMO=False
+
+if not DEMO:
+    DIRECTORY = '/home/pi/rpi-sync/Berrycounter'
 
 def to_RW_unit(pulse):
     return pulse
@@ -127,6 +131,20 @@ if __name__=="__main__":
 
     if DEMO:
         day_has_passed(time_prev)
+    else:
+        import RPi.GPIO as GPIO
+        GPIO.cleanup()
+        GPIO.setmode(GPIO.BCM)
+
+        # GPIO 23 & 17 & 24 set up as inputs, pulled up to avoid false detection.
+        # So we'll be setting up falling edge detection for both
+        GPIO.setup(17, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+        GPIO.setup(23, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+        GPIO.setup(24, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+
+        GPIO.add_event_detect(17, GPIO.FALLING, callback=regenwater_pulse_seen, bouncetime=50)
+        GPIO.add_event_detect(23, GPIO.FALLING, callback=gas_pulse_seen, bouncetime=50)
+        GPIO.add_event_detect(24, GPIO.FALLING, callback=drinkwater_pulse_seen, bouncetime=50)
 
     while True:
         time.sleep(1)
