@@ -16,7 +16,7 @@ DIRECTORY = './'
 DEMO=False
 
 if not DEMO:
-    DIRECTORY = '/home/pi/rpi-sync/Berrycounter'
+    DIRECTORY = '/home/pi/rpi-sync/Berrycounter/'
 
 def to_RW_unit(pulse):
     return pulse

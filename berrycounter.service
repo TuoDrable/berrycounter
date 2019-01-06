@@ -1,0 +1,14 @@
+[Unit]
+Description=Start Berrycounter
+After=network-online.target
+
+[Service]
+User=pi
+Type=oneshot
+ExecStart=/usr/bin/berrycounter start
+ExecStop=/usr/bin/berrycounter stop
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
+
