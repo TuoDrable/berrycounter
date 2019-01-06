@@ -29,7 +29,7 @@ def to_DW_unit(pulse):
     return pulse
 
 
-def regenwater_pulse_seen():
+def regenwater_pulse_seen(channel):
     print ("RW pulse seen!")
     rw_object = Counter.objects.get(name='RW')
     rw_object.pulses_this_hour += 1
@@ -39,7 +39,7 @@ def regenwater_pulse_seen():
 
 
 
-def gas_pulse_seen():
+def gas_pulse_seen(channel):
     print ("GAS pulse seen!")
     gas_object = Counter.objects.get(name='GAS')
     gas_object.pulses_this_hour += 1
@@ -49,7 +49,7 @@ def gas_pulse_seen():
 
 
 
-def drinkwater_pulse_seen():
+def drinkwater_pulse_seen(channel):
     print ("DW pulse seen!")
     dw_object = Counter.objects.get(name='DW')
     dw_object.pulses_this_hour += 1
