@@ -19,14 +19,14 @@ if not DEMO:
     DIRECTORY = '/home/pi/rpi-sync/Berrycounter/'
 
 def to_RW_unit(pulse):
-    return pulse
+    return pulse / 1000
 
 
 def to_GAS_unit(pulse):
-    return pulse
+    return pulse / 100
 
 def to_DW_unit(pulse):
-    return pulse
+    return pulse / 1000
 
 
 def regenwater_pulse_seen(channel):
