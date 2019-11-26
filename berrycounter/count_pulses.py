@@ -9,24 +9,27 @@ os.environ.setdefault("DJANGO_SETTINGS_MODULE", "berrycounter.settings")
 django.setup()
 
 
-from counter.models import Counter
+from counter.models import *
 
 DIRECTORY = './'
 
 DEMO=False
 
 if not DEMO:
-    DIRECTORY = '/home/pi/rpi-sync/Berrycounter/'
+    DIRECTORY = '/home/pi/berry-stats/'
 
 def to_RW_unit(pulse):
-    return pulse / 1000
+    rw_object = Counter.objects.get(name='RW')
+    return pulse * rw_object.conversion_multiplier
 
 
 def to_GAS_unit(pulse):
-    return pulse / 100
+    gas_object = Counter.objects.get(name='GAS')
+    return pulse * gas_object.conversion_multiplier
 
 def to_DW_unit(pulse):
-    return pulse / 1000
+    dw_object = Counter.objects.get(name='DW')
+    return pulse * dw_object.conversion_multiplier
 
 
 def regenwater_pulse_seen(channel):
@@ -72,15 +75,28 @@ def hour_has_passed(time_prev):
 
     create_file_if_not_existing_yet(filename, 'hour')
 
+
+    rw_pulses = Counter.objects.get(name='RW').pulses_this_hour
+    gas_pulses = Counter.objects.get(name='GAS').pulses_this_hour
+    dw_pulses = Counter.objects.get(name='DW').pulses_this_hour
+
     with open(filename, 'a') as counterfile:
         counterfile.write('\n')
         counterfile.write(str(time_prev.tm_hour))
         counterfile.write(';')
-        counterfile.write(str(to_RW_unit(Counter.objects.get(name='RW').pulses_this_hour)))
+        counterfile.write(str(to_RW_unit(rw_pulses)))
         counterfile.write(';')
-        counterfile.write(str(to_GAS_unit(Counter.objects.get(name='GAS').pulses_this_hour)))
+        counterfile.write(str(to_GAS_unit(gas_pulses)))
         counterfile.write(';')
-        counterfile.write(str(to_DW_unit(Counter.objects.get(name='DW').pulses_this_hour)))
+        counterfile.write(str(to_DW_unit(dw_pulses)))
+
+    rw_entry = DayHistory(counter=Counter.objects.get(name='RW'), hour=time_prev.tm_hour, value=rw_pulses)
+    rw_entry.save()
+    gas_entry = DayHistory(counter=Counter.objects.get(name='GAS'), hour=time_prev.tm_hour, value=gas_pulses)
+    gas_entry.save()
+    dw_entry = DayHistory(counter=Counter.objects.get(name='DW'), hour=time_prev.tm_hour, value=dw_pulses)
+    dw_entry.save()
+
 
     for counter in Counter.objects.all():
         counter.pulses_this_hour = 0
@@ -93,15 +109,27 @@ def day_has_passed(time_prev):
 
     create_file_if_not_existing_yet(filename, 'day')
 
+    rw_pulses = Counter.objects.get(name='RW').pulses_today
+    gas_pulses = Counter.objects.get(name='GAS').pulses_today
+    dw_pulses = Counter.objects.get(name='DW').pulses_today
+
+
     with open(filename, 'a') as counterfile:
         counterfile.write('\n')
         counterfile.write(time.strftime("%d-%m-%Y", time_prev))
         counterfile.write(';')
-        counterfile.write(str(to_RW_unit(Counter.objects.get(name='RW').pulses_today)))
+        counterfile.write(str(to_RW_unit(rw_pulses)))
         counterfile.write(';')
-        counterfile.write(str(to_GAS_unit(Counter.objects.get(name='GAS').pulses_today)))
+        counterfile.write(str(to_GAS_unit(gas_pulses)))
         counterfile.write(';')
-        counterfile.write(str(to_DW_unit(Counter.objects.get(name='DW').pulses_today)))
+        counterfile.write(str(to_DW_unit(dw_pulses)))
+
+    rw_entry = WeekHistory(counter=Counter.objects.get(name='RW'), week=time_prev.tm_wday, value=rw_pulses)
+    rw_entry.save()
+    gas_entry = WeekHistory(counter=Counter.objects.get(name='GAS'), week=time_prev.tm_wday, value=gas_pulses)
+    gas_entry.save()
+    dw_entry = WeekHistory(counter=Counter.objects.get(name='DW'), week=time_prev.tm_wday, value=dw_pulses)
+    dw_entry.save()
 
 
     for counter in Counter.objects.all():
@@ -111,8 +139,10 @@ def day_has_passed(time_prev):
 
 def sync_with_dropbox():
     if not DEMO:
-        subprocess.call("rclone sync /home/pi/rpi-sync/Berrycounter dropbox_brecht:Berrycounter/logging", shell=True)
+        pass
+    #subprocess.call("rclone sync /home/pi/rpi-sync/Berrycounter dropbox_brecht:Berrycounter/logging", shell=True)
 
+    pass
 
 if __name__=="__main__":
     print ("Start Counting! #counter = " + str(len(Counter.objects.all())))
@@ -141,9 +171,9 @@ if __name__=="__main__":
         GPIO.setup(23, GPIO.IN, pull_up_down=GPIO.PUD_UP)
         GPIO.setup(24, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
-        GPIO.add_event_detect(17, GPIO.FALLING, callback=regenwater_pulse_seen, bouncetime=50)
-        GPIO.add_event_detect(23, GPIO.FALLING, callback=gas_pulse_seen, bouncetime=50)
-        GPIO.add_event_detect(24, GPIO.FALLING, callback=drinkwater_pulse_seen, bouncetime=50)
+        #GPIO.add_event_detect(24, GPIO.FALLING, callback=regenwater_pulse_seen, bouncetime=50)
+        GPIO.add_event_detect(17, GPIO.FALLING, callback=gas_pulse_seen, bouncetime=50)
+        GPIO.add_event_detect(23, GPIO.FALLING, callback=drinkwater_pulse_seen, bouncetime=50)
 
     try:
         while True:

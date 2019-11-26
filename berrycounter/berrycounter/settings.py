@@ -25,7 +25,7 @@ SECRET_KEY = ')ofwu8p=m7h7c^*xr1_022-zhsrmdwguax#god4vd$nr07v*qf'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['192.168.1.8']
+ALLOWED_HOSTS = ['192.168.1.8', 'berrycounter.local']
 
 
 # Application definition
@@ -37,7 +37,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'counter.apps.CounterConfig'
+    'counter.apps.CounterConfig',
+    'chartjs'
 ]
 
 MIDDLEWARE = [
