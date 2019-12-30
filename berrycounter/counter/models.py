@@ -25,21 +25,21 @@ class Counter(models.Model):
     def __str__(self):
         return self.get_name_display()
 
-class DayHistory(models.Model):
+class HourHistory(models.Model):
     counter = models.ForeignKey(Counter, on_delete=models.CASCADE)
-    date = models.DateField(auto_now_add=True)
+    date = models.DateField()
     hour = models.IntegerField()
     value = models.IntegerField()
 
     def __str__(self):
-        return str(counter) + ' | ' + str(date) + ' ' + hour + ':00 | ' + value + ' pulses'
+        return str(self.counter) + ' | ' + str(self.date) + ' ' + str(self.hour) + ':00 | ' + str(self.value) + ' pulses'
 
-class WeekHistory(models.Model):
+class DayHistory(models.Model):
     counter = models.ForeignKey(Counter, on_delete=models.CASCADE)
-    date = models.DateField(auto_now_add=True)
-    week = models.IntegerField()
+    date = models.DateField()
+    weekday = models.IntegerField()
     value = models.IntegerField()
 
     def __str__(self):
-        return str(counter) + ' | week ' + str(week) + ' - ' + str(date) + ' | ' + value + ' pulses'
+        return str(self.counter) + ' | week ' + str(self.weekday) + ' - ' + str(self.date) + ' | ' + str(self.value) + ' pulses'
 

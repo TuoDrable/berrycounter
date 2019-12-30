@@ -1,6 +1,7 @@
 import os
 import django
 import time
+import datetime
 import random
 import subprocess
 
@@ -71,6 +72,7 @@ def create_file_if_not_existing_yet(filename, header):
 def hour_has_passed(time_prev):
     print ("Hour has passed!")
 
+    date = datetime.fromtimestamp(time.mktime(time_prev)).date()
     filename = DIRECTORY + 'pulsecounter_' + time.strftime("%d_%m_%Y", time_prev) + '.csv'
 
     create_file_if_not_existing_yet(filename, 'hour')
@@ -90,11 +92,11 @@ def hour_has_passed(time_prev):
         counterfile.write(';')
         counterfile.write(str(to_DW_unit(dw_pulses)))
 
-    rw_entry = DayHistory(counter=Counter.objects.get(name='RW'), hour=time_prev.tm_hour, value=rw_pulses)
+    rw_entry = HourHistory(counter=Counter.objects.get(name='RW'), date=date, hour=time_prev.tm_hour, value=rw_pulses)
     rw_entry.save()
-    gas_entry = DayHistory(counter=Counter.objects.get(name='GAS'), hour=time_prev.tm_hour, value=gas_pulses)
+    gas_entry = HourHistory(counter=Counter.objects.get(name='GAS'), date=date, hour=time_prev.tm_hour, value=gas_pulses)
     gas_entry.save()
-    dw_entry = DayHistory(counter=Counter.objects.get(name='DW'), hour=time_prev.tm_hour, value=dw_pulses)
+    dw_entry = HourHistory(counter=Counter.objects.get(name='DW'), date=date, hour=time_prev.tm_hour, value=dw_pulses)
     dw_entry.save()
 
 
@@ -105,6 +107,7 @@ def hour_has_passed(time_prev):
 def day_has_passed(time_prev):
     print ("Day has passed!")
 
+    date = datetime.fromtimestamp(time.mktime(time_prev)).date()
     filename = DIRECTORY + 'pulsecounter_' + time.strftime("%W_%Y", time_prev) + '.csv'
 
     create_file_if_not_existing_yet(filename, 'day')
@@ -124,11 +127,11 @@ def day_has_passed(time_prev):
         counterfile.write(';')
         counterfile.write(str(to_DW_unit(dw_pulses)))
 
-    rw_entry = WeekHistory(counter=Counter.objects.get(name='RW'), week=time_prev.tm_wday, value=rw_pulses)
+    rw_entry = DayHistory(counter=Counter.objects.get(name='RW'), date=date, weekday=time_prev.tm_wday, value=rw_pulses)
     rw_entry.save()
-    gas_entry = WeekHistory(counter=Counter.objects.get(name='GAS'), week=time_prev.tm_wday, value=gas_pulses)
+    gas_entry = DayHistory(counter=Counter.objects.get(name='GAS'), date=date, weekday=time_prev.tm_wday, value=gas_pulses)
     gas_entry.save()
-    dw_entry = WeekHistory(counter=Counter.objects.get(name='DW'), week=time_prev.tm_wday, value=dw_pulses)
+    dw_entry = DayHistory(counter=Counter.objects.get(name='DW'), date=date, weekday=time_prev.tm_wday, value=dw_pulses)
     dw_entry.save()
 
 

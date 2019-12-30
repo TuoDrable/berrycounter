@@ -1,0 +1,53 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Verbruik</title>
+</head>
+<body>
+  <div id="days"></div>
+  <div id="months"></div>
+  <script src="https://code.highcharts.com/highcharts.src.js"></script>
+  <script>
+    Highcharts.chart('days', {
+        chart: {
+            type: 'column'
+        },
+        title: {
+            text: 'Verbruik de laatste 30 dagen'
+        },
+        xAxis: {
+            categories: [{% for day in days %}'{{ day }}'{% if not forloop.last %}, {% endif %}{% endfor %}]
+        },
+        series: [{% for name, values in counters.items %}{
+            name: '{{ name }}',
+            data: [{% for value in values %}{{ value }}{% if not forloop.last %}, {% endif %}{% endfor %}]
+            }
+{% if not forloop.last %}, {% endif %}        
+{% endfor %}
+        ]
+    });
+
+    Highcharts.chart('months', {
+        chart: {
+            type: 'column'
+        },
+        title: {
+            text: 'Jaarverbruik'
+        },
+        xAxis: {
+            categories: [{% for month in months %}'{{ month }}'{% if not forloop.last %}, {% endif %}{% endfor %}]
+        },
+        series: [{% for name, values in month_counters.items %}{
+            name: '{{ name }}',
+            data: [{% for value in values %}{{ value }}{% if not forloop.last %}, {% endif %}{% endfor %}]
+            }
+{% if not forloop.last %}, {% endif %}
+{% endfor %} 
+        ]
+    });
+  </script>
+
+
+</body>
+</html>
