@@ -72,7 +72,7 @@ def create_file_if_not_existing_yet(filename, header):
 def hour_has_passed(time_prev):
     print ("Hour has passed!")
 
-    date = datetime.fromtimestamp(time.mktime(time_prev)).date()
+    date = datetime.date.fromtimestamp(time.mktime(time_prev))
     filename = DIRECTORY + 'pulsecounter_' + time.strftime("%d_%m_%Y", time_prev) + '.csv'
 
     create_file_if_not_existing_yet(filename, 'hour')
@@ -107,7 +107,7 @@ def hour_has_passed(time_prev):
 def day_has_passed(time_prev):
     print ("Day has passed!")
 
-    date = datetime.fromtimestamp(time.mktime(time_prev)).date()
+    date = datetime.date.fromtimestamp(time.mktime(time_prev))
     filename = DIRECTORY + 'pulsecounter_' + time.strftime("%W_%Y", time_prev) + '.csv'
 
     create_file_if_not_existing_yet(filename, 'day')
