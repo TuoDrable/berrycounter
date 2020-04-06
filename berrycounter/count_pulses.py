@@ -172,11 +172,20 @@ if __name__=="__main__":
         # So we'll be setting up falling edge detection for both
         GPIO.setup(17, GPIO.IN, pull_up_down=GPIO.PUD_UP)
         GPIO.setup(23, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-        GPIO.setup(24, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+        #GPIO.setup(24, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+        GPIO.setup(25, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
-        #GPIO.add_event_detect(24, GPIO.FALLING, callback=regenwater_pulse_seen, bouncetime=50)
-        GPIO.add_event_detect(17, GPIO.FALLING, callback=gas_pulse_seen, bouncetime=50)
-        GPIO.add_event_detect(23, GPIO.FALLING, callback=drinkwater_pulse_seen, bouncetime=50)
+        if True:
+            # config Brecht DJG
+            GPIO.add_event_detect(17, GPIO.FALLING, callback=regenwater_pulse_seen, bouncetime=50)
+            GPIO.add_event_detect(23, GPIO.FALLING, callback=gas_pulse_seen, bouncetime=50)
+            #GPIO.add_event_detect(25, GPIO.FALLING, callback=drinkwater_pulse_seen, bouncetime=50)
+            GPIO.add_event_detect(25, GPIO.FALLING, callback=drinkwater_pulse_seen, bouncetime=50)
+        else:
+            # config Brecht N
+            #GPIO.add_event_detect(24, GPIO.FALLING, callback=regenwater_pulse_seen, bouncetime=50)
+            GPIO.add_event_detect(17, GPIO.FALLING, callback=gas_pulse_seen, bouncetime=50)
+            GPIO.add_event_detect(23, GPIO.FALLING, callback=drinkwater_pulse_seen, bouncetime=50)
 
     try:
         while True:
