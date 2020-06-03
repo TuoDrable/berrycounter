@@ -19,6 +19,10 @@ DEMO=False
 if not DEMO:
     DIRECTORY = '/home/pi/berry-stats/'
 
+WEEKDIR = DIRECTORY + 'week/'
+MONTHDIR = DIRECTORY + 'month/'
+DAYDIR = DIRECTORY + 'day/'
+
 def to_RW_unit(pulse):
     rw_object = Counter.objects.get(name='RW')
     return pulse * rw_object.conversion_multiplier
@@ -73,7 +77,7 @@ def hour_has_passed(time_prev):
     print ("Hour has passed!")
 
     date = datetime.date.fromtimestamp(time.mktime(time_prev))
-    filename = DIRECTORY + 'pulsecounter_' + time.strftime("%d_%m_%Y", time_prev) + '.csv'
+    filename = DAYDIR + 'pulsecounter_day_' + time.strftime("%Y_%m_%d", time_prev) + '.csv'
 
     create_file_if_not_existing_yet(filename, 'hour')
 
@@ -86,11 +90,11 @@ def hour_has_passed(time_prev):
         counterfile.write('\n')
         counterfile.write(str(time_prev.tm_hour))
         counterfile.write(';')
-        counterfile.write(str(to_RW_unit(rw_pulses)))
+        counterfile.write(str(to_RW_unit(rw_pulses)).replace('.', ','))
         counterfile.write(';')
-        counterfile.write(str(to_GAS_unit(gas_pulses)))
+        counterfile.write(str(to_GAS_unit(gas_pulses)).replace('.', ','))
         counterfile.write(';')
-        counterfile.write(str(to_DW_unit(dw_pulses)))
+        counterfile.write(str(to_DW_unit(dw_pulses)).replace('.', ','))
 
     rw_entry = HourHistory(counter=Counter.objects.get(name='RW'), date=date, hour=time_prev.tm_hour, value=rw_pulses)
     rw_entry.save()
@@ -108,24 +112,26 @@ def day_has_passed(time_prev):
     print ("Day has passed!")
 
     date = datetime.date.fromtimestamp(time.mktime(time_prev))
-    filename = DIRECTORY + 'pulsecounter_' + time.strftime("%W_%Y", time_prev) + '.csv'
+    week_filename = WEEKDIR + 'pulsecounter_week_' + time.strftime("%Y_%W", time_prev) + '.csv'
+    month_filename = MONTHDIR + 'pulsecounter_month_' + time.strftime("%Y_%m", time_prev) + '.csv'
 
-    create_file_if_not_existing_yet(filename, 'day')
+    create_file_if_not_existing_yet(week_filename, 'day')
+    create_file_if_not_existing_yet(month_filename, 'day')
 
     rw_pulses = Counter.objects.get(name='RW').pulses_today
     gas_pulses = Counter.objects.get(name='GAS').pulses_today
     dw_pulses = Counter.objects.get(name='DW').pulses_today
 
-
-    with open(filename, 'a') as counterfile:
-        counterfile.write('\n')
-        counterfile.write(time.strftime("%d-%m-%Y", time_prev))
-        counterfile.write(';')
-        counterfile.write(str(to_RW_unit(rw_pulses)))
-        counterfile.write(';')
-        counterfile.write(str(to_GAS_unit(gas_pulses)))
-        counterfile.write(';')
-        counterfile.write(str(to_DW_unit(dw_pulses)))
+    for filename in [week_filename, month_filename]:
+        with open(filename, 'a') as counterfile:
+            counterfile.write('\n')
+            counterfile.write(time.strftime("%d-%m-%Y", time_prev))
+            counterfile.write(';')
+            counterfile.write(str(to_RW_unit(rw_pulses)).replace('.', ','))
+            counterfile.write(';')
+            counterfile.write(str(to_GAS_unit(gas_pulses)).replace('.', ','))
+            counterfile.write(';')
+            counterfile.write(str(to_DW_unit(dw_pulses)).replace('.', ','))
 
     rw_entry = DayHistory(counter=Counter.objects.get(name='RW'), date=date, weekday=time_prev.tm_wday, value=rw_pulses)
     rw_entry.save()
